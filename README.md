@@ -76,7 +76,7 @@ Drag the window to move it (unless *Lock window position* is on).
 
 ## Leveling Valeera fast
 
-Harldan's guide covers the quickest known method: run Delves on a **stealth class** (Rogue, Druid, or a Night Elf using Shadowmeld) and skip straight to the objectives/boss instead of clearing trash — Valeera's XP comes from completing the Delve, not from kills, so shorter runs mean more XP per hour. Use this addon's *Avg run* / *Time to level* lines to compare tiers and routes.
+Harldan's guide covers the quickest known method: run Delves on a **stealth class** (Rogue or Druid) and skip straight to the objectives/boss instead of clearing trash — Valeera's XP comes from completing the Delve, not from kills, so shorter runs mean more XP per hour. Use this addon's *Avg run* / *Time to level* lines to compare tiers and routes.
 
 ▶ [Harldan — Level Valeera Quickly with a Stealth Class](https://www.youtube.com/watch?v=vX-RXiUGzso)
 
