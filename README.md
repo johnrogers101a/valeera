@@ -6,9 +6,17 @@ The window **only appears while you are inside a Delve** and hides itself everyw
 
 ## Leveling Valeera fast
 
-Harldan's guide covers the quickest known method: run Delves on a **stealth class** (Rogue or Druid) and skip straight to the objectives/boss instead of clearing trash — Valeera's XP comes from completing the Delve, not from kills, so shorter runs mean more XP per hour. Use this addon's *Avg run* / *Time to level* lines to compare tiers and routes.
+Harldan's guide covers the current fastest method — farming **Mislaid Curiosities in The Grudge Pit**:
 
-▶ [Harldan — Level Valeera Quickly with a Stealth Class](https://www.youtube.com/watch?v=vX-RXiUGzso)
+1. **Get Dundun's Favor** (utility curio). Complete any Delve (bountiful not required), loot the end chest for curios; enough runs unlocks it at rank 1. Rank doesn't matter — just having it equipped makes you auto-consume any Mislaid Curiosity you walk over, no clearing the room first.
+2. **Push a Delve tier to 11 elsewhere.** Curiosity XP scales with Delve level, so run at T11. Easy pushes at time of recording: Gulf of Memory, Sporespecial, Shadowguard Point, Calamitous — they rotate daily.
+3. **Enter The Grudge Pit at T11**, pan the camera, run over every curiosity you can find (~3k Valeera XP each for common; rare/epic ones drop more), then leave instantly with a leave-delve macro (Harldan pins his in the video comments) and repeat.
+
+Notes from the video: no stealth or class needed, but Druid/Rogue makes it easier — watch for the venom-cursed mobs that sometimes spawn on top of curiosities. There's variance (some sweeps yield only two). Lower Valeera levels scale up faster; his napkin math is ~4 hours from 60 to 80 (the new cap). Other XP sources (end-of-delve, mob kills) were disabled in preseason; when they work again, Collegiate Calamity with the invasive-glow variant is usually the better XP/hour.
+
+Use this addon's *Avg run* / *XP per minute* / *Time to level* lines to check your own rate.
+
+▶ [Harldan — Fastest Valeera XP Farm (Grudge Pit curiosities)](https://www.youtube.com/watch?v=vX-RXiUGzso)
 
 ## Features
 
