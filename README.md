@@ -4,11 +4,11 @@ A lightweight World of Warcraft addon that tracks **Valeera Sanguinar's companio
 
 The window **only appears while you are inside a Delve** and hides itself everywhere else.
 
-![Tracker window](docs/tracker.png)
+## Leveling Valeera fast
 
-In a live run — the ring fills from the bottom clockwise as Valeera gains XP:
+Harldan's guide covers the quickest known method: run Delves on a **stealth class** (Rogue or Druid) and skip straight to the objectives/boss instead of clearing trash — Valeera's XP comes from completing the Delve, not from kills, so shorter runs mean more XP per hour. Use this addon's *Avg run* / *Time to level* lines to compare tiers and routes.
 
-![Tracker in a delve](docs/tracker-in-delve.png)
+▶ [Harldan — Level Valeera Quickly with a Stealth Class](https://www.youtube.com/watch?v=vX-RXiUGzso)
 
 ## Features
 
@@ -19,8 +19,6 @@ In a live run — the ring fills from the bottom clockwise as Valeera gains XP:
 - **Persistent history** — every completed run is saved to `ValeeraDB` (SavedVariables) so stats survive logout.
 - **Last-run summary** shown when no run is active.
 - **Configurable** — options panel under *Options → AddOns → Valeera*: show/hide window, lock position, show/hide portrait, font size, and a checkbox for every data line.
-
-![Options panel](docs/options.png)
 
 ## Installation
 
@@ -59,8 +57,6 @@ Copy-Item .\valeera\Valeera.toc, .\valeera\Valeera.lua $dst -Force
 
 Just enter a Delve — the window appears automatically and a run starts. Leaving the Delve (or completing the scenario) ends the run, prints a summary to chat, and saves it to history.
 
-![Chat summary](docs/chat-summary.png)
-
 Drag the window to move it (unless *Lock window position* is on).
 
 ### Slash commands
@@ -74,17 +70,30 @@ Drag the window to move it (unless *Lock window position* is on).
 | `/valeera clearhistory` | Wipe saved run history / stats |
 | `/valeera faction <id>` | Pin the companion reputation faction ID (only if auto-detect fails) |
 
-## Leveling Valeera fast
-
-Harldan's guide covers the quickest known method: run Delves on a **stealth class** (Rogue or Druid) and skip straight to the objectives/boss instead of clearing trash — Valeera's XP comes from completing the Delve, not from kills, so shorter runs mean more XP per hour. Use this addon's *Avg run* / *Time to level* lines to compare tiers and routes.
-
-▶ [Harldan — Level Valeera Quickly with a Stealth Class](https://www.youtube.com/watch?v=vX-RXiUGzso)
-
 ## How it works
+
 - **Delve detection** — `C_PartyInfo.IsDelveInProgress()`, falling back to scenario instance type + Delve difficulty ID 208.
 - **Companion XP** — read from Valeera's friendship reputation (`C_GossipInfo.GetFriendshipReputation`); the faction ID is auto-resolved by name.
 - **Tier** — scraped from the Delve difficulty picker dropdown when you select a tier (approach borrowed from [this r/wowaddons thread](https://www.reddit.com/r/wowaddons/comments/1s0zilk/valeera_xp_gain_tracking)).
 - **Loot** — `CHAT_MSG_LOOT` events for your own character, bucketed by item quality.
+
+## Screenshots
+
+Tracker window (idle, showing last-run stats):
+
+![Tracker window](docs/tracker.png)
+
+Live run — the ring fills from the bottom clockwise as Valeera gains XP:
+
+![Tracker in a delve](docs/tracker-in-delve.png)
+
+Chat summary printed when a run ends:
+
+![Chat summary](docs/chat-summary.png)
+
+Options panel (*Options → AddOns → Valeera*):
+
+![Options panel](docs/options.png)
 
 ## License
 
