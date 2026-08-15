@@ -6,6 +6,10 @@ The window **only appears while you are inside a Delve** and hides itself everyw
 
 ![Tracker window](docs/tracker.png)
 
+In a live run — the ring fills from the bottom clockwise as Valeera gains XP:
+
+![Tracker in a delve](docs/tracker-in-delve.png)
+
 ## Features
 
 - **Portrait ring** — Valeera's portrait with a circular XP progress ring (fills from the bottom, clockwise) and a level badge, styled after the in-game companion panel.
@@ -54,6 +58,8 @@ Copy-Item .\valeera\Valeera.toc, .\valeera\Valeera.lua $dst -Force
 ## Usage
 
 Just enter a Delve — the window appears automatically and a run starts. Leaving the Delve (or completing the scenario) ends the run, prints a summary to chat, and saves it to history.
+
+![Chat summary](docs/chat-summary.png)
 
 Drag the window to move it (unless *Lock window position* is on).
 
