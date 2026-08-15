@@ -81,10 +81,6 @@ Drag the window to move it (unless *Lock window position* is on).
 - **Tier** — scraped from the Delve difficulty picker dropdown when you select a tier (approach borrowed from [this r/wowaddons thread](https://www.reddit.com/r/wowaddons/comments/1s0zilk/valeera_xp_gain_tracking)).
 - **Loot** — `CHAT_MSG_LOOT` events for your own character, bucketed by item quality.
 
-## Contributing
-
-`main` is protected — all changes go through a pull request. Fork, branch, PR.
-
 ## License
 
 MIT
