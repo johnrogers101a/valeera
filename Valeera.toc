@@ -1,0 +1,9 @@
+## Interface: 120000
+## Title: Valeera
+## Notes: Tracks Valeera companion XP gain and time spent per delve run.
+## Author: 4js
+## Version: 0.1.0
+## SavedVariables: ValeeraDB
+## IconTexture: Interface\Icons\Achievement_Character_Bloodelf_Female
+
+Valeera.lua
