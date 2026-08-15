@@ -74,8 +74,13 @@ Drag the window to move it (unless *Lock window position* is on).
 | `/valeera clearhistory` | Wipe saved run history / stats |
 | `/valeera faction <id>` | Pin the companion reputation faction ID (only if auto-detect fails) |
 
-## How it works
+## Leveling Valeera fast
 
+Harldan's guide covers the quickest known method: run Delves on a **stealth class** (Rogue, Druid, or a Night Elf using Shadowmeld) and skip straight to the objectives/boss instead of clearing trash — Valeera's XP comes from completing the Delve, not from kills, so shorter runs mean more XP per hour. Use this addon's *Avg run* / *Time to level* lines to compare tiers and routes.
+
+▶ [Harldan — Level Valeera Quickly with a Stealth Class](https://www.youtube.com/watch?v=vX-RXiUGzso)
+
+## How it works
 - **Delve detection** — `C_PartyInfo.IsDelveInProgress()`, falling back to scenario instance type + Delve difficulty ID 208.
 - **Companion XP** — read from Valeera's friendship reputation (`C_GossipInfo.GetFriendshipReputation`); the faction ID is auto-resolved by name.
 - **Tier** — scraped from the Delve difficulty picker dropdown when you select a tier (approach borrowed from [this r/wowaddons thread](https://www.reddit.com/r/wowaddons/comments/1s0zilk/valeera_xp_gain_tracking)).
