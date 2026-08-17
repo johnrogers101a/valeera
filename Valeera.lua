@@ -527,7 +527,7 @@ end
 
 local function EndRun()
     if not state.runActive then return end
-    local level, _, _, standing = GetCompanionXP()
+    local level, into, needed, standing = GetCompanionXP()
     local seconds = GetTime() - state.startTime
     local gain    = (standing or 0) - (state.startXP or 0)
     local run = {
@@ -547,6 +547,13 @@ local function EndRun()
     Print(string.format("Run done: %s%s  %s  +%s XP  (%s/min)",
         run.delve or "?", run.tier and (" T" .. run.tier) or "",
         FormatDuration(seconds), BreakUpLargeNumbers(gain), BreakUpLargeNumbers(math.floor(run.perMin))))
+    if level and into and needed then
+        local remaining = needed - into
+        local stats = GetRunStats()
+        local runsLeft = (stats and stats.avgGain > 0) and math.ceil(remaining / stats.avgGain) or nil
+        Print(string.format("Valeera level %d  %s XP to next  (~%s runs)",
+            level, BreakUpLargeNumbers(remaining), runsLeft and tostring(runsLeft) or "?"))
+    end
 end
 
 local function CheckDelveState()
