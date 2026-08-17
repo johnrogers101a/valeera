@@ -89,19 +89,19 @@ Drag the window to move it (unless *Lock window position* is on).
 
 Tracker window (idle, showing last-run stats):
 
-![Tracker window](docs/tracker.png)
+![Tracker window](https://raw.githubusercontent.com/johnrogers101a/valeera/main/docs/tracker.png)
 
 Live run — the ring fills from the bottom clockwise as Valeera gains XP:
 
-![Tracker in a delve](docs/tracker-in-delve.png)
+![Tracker in a delve](https://raw.githubusercontent.com/johnrogers101a/valeera/main/docs/tracker-in-delve.png)
 
 Chat summary printed when a run ends:
 
-![Chat summary](docs/chat-summary.png)
+![Chat summary](https://raw.githubusercontent.com/johnrogers101a/valeera/main/docs/chat-summary.png)
 
 Options panel (*Options → AddOns → Valeera*):
 
-![Options panel](docs/options.png)
+![Options panel](https://raw.githubusercontent.com/johnrogers101a/valeera/main/docs/options.png)
 
 ## License
 
