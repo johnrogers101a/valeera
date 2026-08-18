@@ -874,11 +874,34 @@ events:RegisterEvent("GOSSIP_SHOW")
 events:RegisterEvent("GOSSIP_CLOSED")
 events:RegisterEvent("CHAT_MSG_LOOT")
 
+-- Only curiosities count. Everything else you pick up in a delve -- herbs, ore,
+-- mob drops, chest loot -- is not companion XP and must not be counted.
+--
+-- Two forms show up, depending on whether Dundun's Favor is equipped:
+--   * without it, you loot the curiosity item itself
+--   * with it, the curiosity is consumed on contact and grants a
+--     "Chunk of Companion Experience" instead (several item IDs, one per quality)
+-- Matching on name covers every quality tier and both forms; the ID set is not
+-- fully enumerable and shifts between patches.
+-- ponytail: name match, not an ID table. Add IDs only if a curiosity ever stops
+-- matching these names.
+local CURIO_PATTERNS = { "Curiosity", "Companion Experience" }
+
+local function IsCuriosityLoot(link)
+    local name = link and link:match("|h%[(.-)%]|h")
+    if not name then return false end
+    for _, pat in ipairs(CURIO_PATTERNS) do
+        if name:find(pat, 1, true) then return true end
+    end
+    return false
+end
+
 local function OnLoot(msg, guid)
     if not state.runActive or not state.loot then return end
     if guid and guid ~= UnitGUID("player") then return end
     local link = msg:match("|Hitem:.-|h.-|h")
     if not link then return end
+    if not IsCuriosityLoot(link) then return end
     local count = tonumber(msg:match("|hx(%d+)")) or tonumber(msg:match("x(%d+)%.?$")) or 1
     local quality = C_Item and C_Item.GetItemQualityByID and C_Item.GetItemQualityByID(link)
     if not quality then quality = select(3, GetItemInfo(link)) end

@@ -23,7 +23,7 @@ Use this addon's *Avg run* / *XP per minute* / *Time to level* lines to check yo
 - **Portrait ring** — Valeera's portrait with a circular XP progress ring (fills from the bottom, clockwise) and a level badge, styled after the in-game companion panel.
 - **Live run stats** — current Delve name + tier, elapsed time, companion level & % into level, XP gained this run, XP per minute, XP to next level.
 - **Projections** — average run time and XP (last 10 XP-yielding runs), estimated runs to level, estimated time to level.
-- **Loot tracking** — counts of uncommon / rare / epic items you loot per run and all-time.
+- **Curiosity tracking** — counts of uncommon / rare / epic Mislaid Curiosities per run and all-time. Other delve loot (herbs, ore, mob drops) is ignored.
 - **Persistent history** — every completed run is saved to `ValeeraDB` (SavedVariables) so stats survive logout.
 - **Last-run summary** shown when no run is active.
 - **Configurable** — options panel under *Options → AddOns → Valeera*: show/hide window, lock position, show/hide portrait, font size, and a checkbox for every data line.
@@ -83,7 +83,7 @@ Drag the window to move it (unless *Lock window position* is on).
 - **Delve detection** — `C_PartyInfo.IsDelveInProgress()`, falling back to scenario instance type + Delve difficulty ID 208.
 - **Companion XP** — read from Valeera's friendship reputation (`C_GossipInfo.GetFriendshipReputation`); the faction ID is auto-resolved by name.
 - **Tier** — scraped from the Delve difficulty picker dropdown when you select a tier (approach borrowed from [this r/wowaddons thread](https://www.reddit.com/r/wowaddons/comments/1s0zilk/valeera_xp_gain_tracking)).
-- **Loot** — `CHAT_MSG_LOOT` events for your own character, bucketed by item quality.
+- **Curiosities** — `CHAT_MSG_LOOT` events for your own character, filtered to Mislaid Curiosities and the Chunks of Companion Experience they become when Dundun's Favor is equipped, then bucketed by item quality.
 
 ## Screenshots
 
