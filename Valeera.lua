@@ -17,6 +17,8 @@ local defaults = {
     background  = "Blizzard Tooltip",  -- LSM background key
     border      = "Blizzard Tooltip",  -- LSM border key
     edgeSize    = 12,
+    bgColor     = { 0, 0, 0, 0.75 },        -- backdrop tint {r,g,b,a}
+    borderColor = { 0.6, 0.6, 0.6, 1 },
     show        = {},         -- per-element visibility, missing = shown
     factionID   = nil,        -- resolved at runtime; user may pin via /valeera faction <id>
     pos         = { point = "CENTER", x = 0, y = 0 },
@@ -424,8 +426,10 @@ local function ApplyMedia()
         tile = true, tileSize = 16, edgeSize = edgeSize,
         insets = { left = inset, right = inset, top = inset, bottom = inset },
     })
-    frame:SetBackdropColor(0, 0, 0, 0.75)
-    frame:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+    local bg = (db and db.bgColor) or defaults.bgColor
+    local bd = (db and db.borderColor) or defaults.borderColor
+    frame:SetBackdropColor(bg[1], bg[2], bg[3], bg[4])
+    frame:SetBackdropBorderColor(bd[1], bd[2], bd[3], bd[4])
 end
 
 local function ApplyLayout()
@@ -714,6 +718,86 @@ local function BuildOptions()
         "Background texture for the tracker window.")
     MediaDropdown("border", "border", "Border",
         "Border texture for the tracker window.")
+
+    -- Color swatches. The Settings API has no color control, so this appends a
+    -- plain button to the category layout and drives Blizzard's ColorPickerFrame.
+    -- ponytail: hand-rolled because there is no native option, not for style.
+    local function ColorSwatch(key, label, tooltip)
+        local initializer = Settings.CreateElementInitializer("SettingsListElementTemplate", {
+            name = label,
+            tooltip = tooltip,
+        })
+        initializer.InitFrame = function(_, f)
+            SettingsListElementMixin.OnLoad(f)
+            f:SetTooltipFunc(function(_, t) t:AddLine(label); t:AddLine(tooltip, 1, 1, 1, true) end)
+            f.Text:SetText(label)
+
+            if not f.valeeraSwatch then
+                local b = CreateFrame("Button", nil, f, "BackdropTemplate")
+                b:SetSize(28, 18)
+                b:SetPoint("LEFT", f, "CENTER", 0, 0)
+                b:SetBackdrop({
+                    bgFile = "Interface\\Buttons\\WHITE8X8",
+                    edgeFile = "Interface\\Buttons\\WHITE8X8",
+                    edgeSize = 1,
+                })
+                b:SetBackdropBorderColor(0, 0, 0, 1)
+                -- Checker plate behind the swatch so alpha is visible.
+                local checker = b:CreateTexture(nil, "BACKGROUND")
+                checker:SetAllPoints()
+                checker:SetColorTexture(0.35, 0.35, 0.35, 1)
+                f.valeeraSwatch = b
+            end
+
+            local swatch = f.valeeraSwatch
+            local function Paint()
+                local c = db[key] or defaults[key]
+                swatch:SetBackdropColor(c[1], c[2], c[3], c[4])
+            end
+            Paint()
+
+            swatch:SetScript("OnClick", function()
+                local c = db[key] or defaults[key]
+                local prev = { c[1], c[2], c[3], c[4] }
+                local function Apply()
+                    local r, g, b2 = ColorPickerFrame:GetColorRGB()
+                    -- GetColorAlpha is the modern accessor; opacity is 1-alpha on older builds.
+                    local a = ColorPickerFrame.GetColorAlpha and ColorPickerFrame:GetColorAlpha()
+                        or (OpacitySliderFrame and (1 - OpacitySliderFrame:GetValue())) or 1
+                    db[key] = { r, g, b2, a }
+                    Paint(); ApplyMedia()
+                end
+                local info = {
+                    swatchFunc = Apply,
+                    opacityFunc = Apply,
+                    hasOpacity = true,
+                    opacity = prev[4],
+                    r = prev[1], g = prev[2], b = prev[3],
+                    cancelFunc = function()
+                        db[key] = prev
+                        Paint(); ApplyMedia()
+                    end,
+                }
+                if ColorPickerFrame.SetupColorPickerAndShow then
+                    info.swatchFunc = Apply
+                    ColorPickerFrame:SetupColorPickerAndShow(info)
+                else
+                    ColorPickerFrame.func = Apply
+                    ColorPickerFrame.opacityFunc = Apply
+                    ColorPickerFrame.cancelFunc = info.cancelFunc
+                    ColorPickerFrame.hasOpacity = true
+                    ColorPickerFrame.opacity = prev[4]
+                    ColorPickerFrame:SetColorRGB(prev[1], prev[2], prev[3])
+                    ColorPickerFrame:Show()
+                end
+            end)
+        end
+        pcall(function() SettingsPanel:GetLayout(category):AddInitializer(initializer) end)
+    end
+
+    ColorSwatch("bgColor", "Background color",
+        "Background tint and opacity. Drop the opacity to 0 for a fully transparent window.")
+    ColorSwatch("borderColor", "Border color", "Border tint and opacity.")
 
     do
         local setting = Settings.RegisterAddOnSetting(category, "VALEERA_EDGE_SIZE", "edgeSize",
