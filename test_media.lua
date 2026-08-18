@@ -14,10 +14,11 @@ assert(block and block:find("ApplyMedia"), "failed to slice media block")
 
 local function build(LSM, db)
   local env = {
-    LSM = LSM, db = db, STANDARD_TEXT_FONT = "Fonts\\FRIZQT__.TTF",
+    LSM = LSM, db = db, defaults = { bgColor = {0,0,0,0.75}, borderColor = {0.6,0.6,0.6,1} }, STANDARD_TEXT_FONT = "Fonts\\FRIZQT__.TTF",
     math = math, table = table, pairs = pairs, ipairs = ipairs,
     frame = { SetBackdrop = function(_, b) _G_BACKDROP = b end,
-              SetBackdropColor = function() end, SetBackdropBorderColor = function() end },
+              SetBackdropColor = function(_, r, g, b2, a) _G_BGCOLOR = {r,g,b2,a} end,
+              SetBackdropBorderColor = function(_, r, g, b2, a) _G_BDCOLOR = {r,g,b2,a} end },
   }
   env._G = env
   local chunk = load("local LSM, db, frame = LSM, db, frame\n" .. block ..
@@ -83,5 +84,19 @@ m = build(fakeLSM, { font = "", background = "Solid", border = "None" })
 assert(m.FontPath() == "Fonts\\FRIZQT__.TTF", 'empty font key did not resolve to default')
 m = build(nil, { font = "", background = "Solid", border = "None" })
 assert(m.FontPath() == "Fonts\\FRIZQT__.TTF", 'empty font key broke without LSM')
+
+-- 8. Saved colors drive the backdrop, including a fully transparent background.
+m = build(fakeLSM, { background = "Solid", border = "Blizzard Tooltip",
+                     bgColor = {0.1, 0.2, 0.3, 0}, borderColor = {1, 0, 0, 0.5} })
+m.ApplyMedia()
+assert(_G_BGCOLOR[4] == 0, "alpha 0 background not applied")
+assert(_G_BGCOLOR[1] == 0.1 and _G_BGCOLOR[3] == 0.3, "bg color not applied")
+assert(_G_BDCOLOR[1] == 1 and _G_BDCOLOR[4] == 0.5, "border color not applied")
+
+-- 9. Upgrading from 0.3.0 (no color keys saved) falls back to defaults, not nil.
+m = build(fakeLSM, { background = "Solid", border = "Blizzard Tooltip" })
+m.ApplyMedia()
+assert(_G_BGCOLOR[4] == 0.75, "missing bgColor did not fall back to default")
+assert(_G_BDCOLOR[1] == 0.6, "missing borderColor did not fall back to default")
 
 print("all media checks passed")
