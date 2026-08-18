@@ -13,6 +13,10 @@ local defaults = {
     lockWindow  = false,
     showPortrait = true,
     fontSize    = 14,
+    font        = "",         -- LSM font key; "" = use LSM/Blizzard default
+    background  = "Blizzard Tooltip",  -- LSM background key
+    border      = "Blizzard Tooltip",  -- LSM border key
+    edgeSize    = 12,
     show        = {},         -- per-element visibility, missing = shown
     factionID   = nil,        -- resolved at runtime; user may pin via /valeera faction <id>
     pos         = { point = "CENTER", x = 0, y = 0 },
@@ -342,17 +346,100 @@ local function SetRingProgress(pct)
     end
 end
 
-local FONT_PATH = STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
+-- Media. LibSharedMedia is optional: when present (ElvUI, WeakAuras, Details et al
+-- all embed it) we get every font/texture the user's other addons registered, which
+-- is the whole point -- those paths live inside other addons and can't be discovered
+-- otherwise. Without it we fall back to a small Blizzard-only list.
+-- ponytail: soft dependency, no embedded libs. Vendor LSM only if we ever need it
+-- to load before another addon registers media.
+local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
+
+local FALLBACK_FONT = STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
+
+local FALLBACK_MEDIA = {
+    font = {
+        ["Friz Quadrata TT"] = "Fonts\\FRIZQT__.TTF",
+        ["Arial Narrow"]     = "Fonts\\ARIALN.TTF",
+        ["Skurri"]           = "Fonts\\SKURRI.TTF",
+        ["Morpheus"]         = "Fonts\\MORPHEUS.TTF",
+    },
+    background = {
+        ["None"]             = "",
+        ["Solid"]            = "Interface\\Buttons\\WHITE8X8",
+        ["Blizzard Tooltip"] = "Interface\\Tooltips\\UI-Tooltip-Background",
+        ["Blizzard Dialog"]  = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        ["Blizzard Parchment"] = "Interface\\AchievementFrame\\UI-Achievement-Parchment-Horizontal",
+    },
+    border = {
+        ["None"]             = "",
+        ["Blizzard Tooltip"] = "Interface\\Tooltips\\UI-Tooltip-Border",
+        ["Blizzard Dialog"]  = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        ["Blizzard Party"]   = "Interface\\CHARACTERFRAME\\UI-Party-Border",
+    },
+}
+
+-- Sorted key list for a media type, for the options dropdowns.
+local function MediaList(mediatype)
+    if LSM then return LSM:List(mediatype) end
+    local keys = {}
+    for k in pairs(FALLBACK_MEDIA[mediatype]) do keys[#keys + 1] = k end
+    table.sort(keys)
+    return keys
+end
+
+-- Resolve a saved key to a path. Falls back whenever the key is missing or the
+-- media it names hasn't been registered (addon uninstalled, or not loaded yet).
+local function Media(mediatype, key, default)
+    if LSM then
+        local path = key and LSM:Fetch(mediatype, key, true)
+        return path or LSM:Fetch(mediatype, default) or default
+    end
+    local t = FALLBACK_MEDIA[mediatype]
+    return (key and t[key]) or t[default] or default
+end
+
+local function FontPath()
+    local key = db and db.font
+    if key == "" then key = nil end
+    if LSM then
+        return (key and LSM:Fetch("font", key, true))
+            or LSM:Fetch("font", LSM.DefaultMedia and LSM.DefaultMedia.font)
+            or FALLBACK_FONT
+    end
+    return (key and FALLBACK_MEDIA.font[key]) or FALLBACK_FONT
+end
+
+-- Rebuild the backdrop from the saved media keys. SetBackdrop has to be called
+-- wholesale -- individual fields can't be patched -- so this replaces it entirely
+-- and reapplies the colors after.
+local function ApplyMedia()
+    local edge = Media("border", db and db.border, "Blizzard Tooltip")
+    local edgeSize = (db and db.edgeSize) or 12
+    -- A borderless backdrop still needs inset room or the text hugs the edge.
+    local inset = edge ~= "" and math.max(2, math.floor(edgeSize / 4)) or 3
+
+    frame:SetBackdrop({
+        bgFile   = Media("background", db and db.background, "Blizzard Tooltip"),
+        edgeFile = edge ~= "" and edge or nil,
+        tile = true, tileSize = 16, edgeSize = edgeSize,
+        insets = { left = inset, right = inset, top = inset, bottom = inset },
+    })
+    frame:SetBackdropColor(0, 0, 0, 0.75)
+    frame:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+end
 
 local function ApplyLayout()
     local size = db and db.fontSize or 14
     local lineH = size + 4
     local showRing = db and db.showPortrait
+    local font = FontPath()
 
-    frame.title:SetFont(FONT_PATH, size, "")
-    frame.name:SetFont(FONT_PATH, size + 4, "")
-    frame.subtitle:SetFont(FONT_PATH, size - 1, "")
-    badge.text:SetFont(FONT_PATH, size + 2, "OUTLINE")
+    ApplyMedia()
+
+    frame.title:SetFont(font, size, "")
+    frame.name:SetFont(font, size + 4, "")
+    frame.subtitle:SetFont(font, size - 1, "")
+    badge.text:SetFont(font, size + 2, "OUTLINE")
 
     local top
     if showRing then
@@ -364,7 +451,7 @@ local function ApplyLayout()
     end
 
     for i, fs in ipairs(frame.lines) do
-        fs:SetFont(FONT_PATH, size, "")
+        fs:SetFont(font, size, "")
         fs:ClearAllPoints()
         fs:SetPoint("TOPLEFT", PAD, -(top + (i - 1) * lineH))
     end
@@ -603,6 +690,40 @@ local function BuildOptions()
         Settings.CreateSlider(category, setting, options, "Text size for the tracker window.")
     end
 
+    -- Media dropdowns. Blizzard's dropdown renders plain text, so the entries are
+    -- named but not previewed in the chosen font/texture.
+    local function MediaDropdown(mediatype, key, label, tooltip)
+        local setting = Settings.RegisterAddOnSetting(category,
+            "VALEERA_" .. key:upper(), key, db, Settings.VarType.String,
+            label, defaults[key] or "")
+        setting:SetValueChangedCallback(function() ApplyLayout(); RefreshDisplay() end)
+        -- Rebuilt on open so media registered after login shows up.
+        local function GetOptions()
+            local container = Settings.CreateControlTextContainer()
+            for _, name in ipairs(MediaList(mediatype)) do
+                container:Add(name, name)
+            end
+            return container:GetData()
+        end
+        Settings.CreateDropdown(category, setting, GetOptions, tooltip)
+    end
+
+    MediaDropdown("font", "font", "Font",
+        "Font for the tracker window. Fonts from your other addons appear here.")
+    MediaDropdown("background", "background", "Background",
+        "Background texture for the tracker window.")
+    MediaDropdown("border", "border", "Border",
+        "Border texture for the tracker window.")
+
+    do
+        local setting = Settings.RegisterAddOnSetting(category, "VALEERA_EDGE_SIZE", "edgeSize",
+            db, Settings.VarType.Number, "Border thickness", defaults.edgeSize)
+        setting:SetValueChangedCallback(function() ApplyLayout(); RefreshDisplay() end)
+        local options = Settings.CreateSliderOptions(1, 32, 1)
+        options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(v) return tostring(v) end)
+        Settings.CreateSlider(category, setting, options, "Thickness of the tracker window border.")
+    end
+
     pcall(function()
         local layout = SettingsPanel:GetLayout(category)
         layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Data elements"))
@@ -694,6 +815,14 @@ events:SetScript("OnEvent", function(_, event, arg1, ...)
         end
         state.lastRun = db.history[#db.history]
         BuildOptions()
+        -- Media can register after we load (addons loading later, user-added fonts).
+        -- Without this a saved font silently stays on the fallback until /reload.
+        if LSM and LSM.RegisterCallback then
+            LSM.RegisterCallback(frame, "LibSharedMedia_Registered", function()
+                ApplyLayout(); RefreshDisplay()
+            end)
+        end
+        ApplyLayout()
     elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" or event == "SCENARIO_UPDATE" then
         C_Timer.After(1, CheckDelveState)
     elseif event == "SCENARIO_COMPLETED" then

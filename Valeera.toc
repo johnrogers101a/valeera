@@ -2,8 +2,9 @@
 ## Title: Valeera
 ## Notes: Tracks Valeera companion XP gain and time spent per delve run.
 ## Author: 4js
-## Version: 0.2.0
+## Version: 0.3.0
 ## SavedVariables: ValeeraDB
+## OptionalDeps: LibSharedMedia-3.0
 ## IconTexture: Interface\Icons\Achievement_Character_Bloodelf_Female
 
 Valeera.lua
